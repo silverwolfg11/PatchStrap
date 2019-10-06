@@ -20,10 +20,16 @@ else
 fi
 
 if [ -f "patch" ]; then
+    echo "Removing current patch file!"
     rm "patch"
 fi
 
+echo "Fetching latest patch file!"
+
 curl $patchURL >> patch
+
+echo "Filling in fields!"
+
 sed -i '4d' "patch"
 sed -i "4i repolink=\"$repoLink\"" "patch"
 sed -i '6d' "patch"

@@ -193,10 +193,13 @@ if [ $# -gt 0 ]; then
 
     "update" | "u")
         if [ -f "getpatch" ]; then
+            echo "Removing existing patch bootstrap!"
             rm "getpatch"
         fi
 
+        echo "Downloading latest patch bootstrap!"
         curl "https://github.com/silverwolfg11/PatchStrap/raw/master/getpatch" >> getpatch
+        echo "Running patchstrap!"
         ./getpatch $repolink $repofolder $branchName
         exit 1
      ;;
