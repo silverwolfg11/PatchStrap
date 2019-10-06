@@ -1,0 +1,202 @@
+#!/usr/bin/env bash
+
+currentdir=$(pwd)
+repolink="https://gitlab.com/elian1203/PlaytimePro.git"
+branchName=""
+repofolder="PlaytimePro"
+patchAuthor="Silverwolfg11 <silverwolfg11@gmail.com>"
+
+function cloneProj {
+    if [ -z "$branchName" ]; then
+        git clone $repolink .
+    else
+        git clone $repolink --branch $branchName --single-branch .
+    fi
+}
+
+function reClone {
+    if [ -d $repofolder ]; then
+        rm -rf $repofolder
+    fi
+    mkdir $repofolder
+    cd $repofolder
+    cloneProj
+}
+
+if [ $# -gt 0 ]; then
+    case $1 in
+    "download" | "d" )
+        if [ ! -d $repofolder ]; then
+            mkdir $repofolder
+        fi
+        cd $repofolder
+        if [ ! -d .git ]; then
+            cloneProj
+        fi
+        ;;
+
+    "rebuild" | "rb" )
+        if [ ! -d $repofolder ]; then
+            echo "Repo folder doesn't exist!"
+            exit 1
+        fi
+        cd $repofolder;
+        git cherry > "$currentdir/commits.txt"
+        num=1
+        input="$currentdir/commits.txt"
+        while IFS= read -r line
+        do
+          patchhash="${line:2}"
+          echo "git format-patch -l $patchhash"
+          git format-patch -1 $patchhash -o "$currentdir/Patches" --start-number $num
+          num=$((num+1))
+        done < "$input"
+        rm -f "$currentdir/commits.txt"
+    ;;
+
+    "apply" | "a")
+        if [ ! -d $repofolder ]; then
+            echo "Repo folder doesn't exist!"
+            exit 1
+        fi
+        cd $repofolder;
+        echo "Determining # of differences..."
+        git cherry > "$currentdir/commits.txt"
+        lines=$(wc -l < "$currentdir/commits.txt")
+        echo "Resetting head by $lines commits"
+        git reset --hard HEAD~$lines
+        rm -f "$currentdir/commits.txt"
+        git am "$currentdir"/Patches/*.patch
+        exit 1
+    ;;
+
+    "test" | "t")
+        if [ $# -lt 2 ]; then
+            echo "Please attach a patch number!"
+            exit 1
+        fi
+
+        patchNumber=$2
+        patchNumber=$((patchNumber + 0))
+
+        filesLength=$(ls Patches/ -1 | wc -l)
+
+        if [ $filesLength == '0' ]; then
+            echo "No patches to test!"
+            exit 1
+        fi
+
+        if [ $filesLength -lt $patchNumber ]; then
+            echo "Patch number too large!"
+            exit 1
+        fi
+
+        patchNumber=$2
+        patchLength=${#patchNumber}
+
+        while [ $patchLength -lt 4 ];
+        do
+            patchNumber="0${patchNumber}"
+            patchLength=${#patchNumber}
+        done
+
+
+        for file in "$currentdir"/Patches/*
+        do
+            basename=$(basename "$file")
+            tempFile=${basename:0:4}
+
+            if [ $tempFile == $patchNumber ]; then
+                echo "Applying patch..."
+                cd "$currentdir"
+                cd $repofolder
+                git am "$file"
+                break
+            fi
+        done
+
+        echo "Ree"
+    ;;
+
+    "fullapply" | "fa")
+        echo "Re-downloading repo..."
+        reClone
+        echo "Applying patches..."
+        git am "$currentdir"/Patches/*.patch
+        exit 1
+    ;;
+
+    "clean" )
+        reClone
+    ;;
+
+    "reauthor" | "ra" )
+            for file in "$currentdir"/Patches/*
+            do
+                sed -i '2d' "$file"
+                sed -i "2i From: $patchAuthor" "$file"
+            done
+            echo "Patches have been re-authored!"
+            exit 1
+    ;;
+
+    "edit" | "e" )
+        if [  $# -gt 1 ] && [ $2 == 'continue' ]; then
+            if [ ! -f "patchedit.txt" ]; then
+                echo "Not editing a patch right now! Or patch edit file was removed!"
+                exit 1
+            fi
+
+            cd $repofolder
+            git add .
+            git commit --amend
+            git rebase --continue
+            cd -
+            rm "patchedit.txt"
+            exit 1
+        fi
+
+        if [ -f "patchedit.txt" ]; then
+            echo "You are already editting a patch! Do ./patch edit continue"
+            exit 1
+        fi
+
+        filesLength=$(ls Patches/ -1 | wc -l)
+
+        if [ $filesLength == '0' ]; then
+            echo "No patches to edit!"
+            exit 1
+        fi
+
+        cd $repofolder
+        echo "Editing patch" > "$currentdir"/patchedit.txt
+        git rebase -i HEAD~$filesLength
+    ;;
+
+    "generate" | "gen")
+        if [ $# -lt 2 ]; then
+            echo "Please enter a valid patch message!"
+            exit 1
+        fi
+        patchmessage=''
+        for ((n=2;n<=$#;n++)); do
+            patchmessage="$patchmessage ${!n}"
+        done
+        length=${#patchmessage}
+        patchmessage=${patchmessage:1:length}
+        cd $repofolder
+        git add .
+        git commit -m "$patchmessage"
+        exit 1
+
+    ;;
+
+    *)
+        echo "Invalid argument! Please enter one of the following arguments: reauthor, edit, download, rebuild, apply"
+        exit 1
+        ;;
+    esac
+
+else
+    echo "Please attach one of the following arguments: reauthor, edit, generate, download, rebuild, apply, or fullapply"
+fi
