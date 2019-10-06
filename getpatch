@@ -1,4 +1,35 @@
 #!/usr/bin/env bash
 
 currentdir=$(pwd)
-patchURL=
+patchURL=https://raw.githubusercontent.com/silverwolfg11/PatchStrap/master/patch
+repoLink=""
+repoFolder=""
+repoBranch=""
+
+if [ $# -gt 1 ]; then
+    repoLink=$1
+    repoFolder=$2
+
+    if [ $# -eq 3 ]; then
+        repoBranch=$3
+    fi
+else
+    read -p "Type the repo link: " repoLink
+    read -p "Type the repo folder: " repoFolder
+    read -p "Type the repo branch: " repoBranch
+fi
+
+if [ -f "patch" ]; then
+    rm "patch"
+fi
+
+curl $patchURL >> patch
+sed -i '4d' "patch"
+sed -i "4i repolink=\"$repoLink\"" "patch"
+sed -i '6d' "patch"
+sed -i "6i repofolder=\"$repoFolder\"" "patch"
+
+if [ ! -z "$repoBranch" ]; then
+    sed -i '5d' "patch"
+    sed -i "5i branchName=\"$repoBranch\"" "patch"
+fi

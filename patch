@@ -191,6 +191,16 @@ if [ $# -gt 0 ]; then
 
     ;;
 
+    "update" | "u")
+        if [ -f "getpatch" ]; then
+            rm "getpatch"
+        fi
+
+        curl "https://github.com/silverwolfg11/PatchStrap/raw/master/getpatch" >> getpatch
+        ./getpatch $repolink $repofolder $branchName
+        exit 1
+     ;;
+
     *)
         echo "Invalid argument! Please enter one of the following arguments: reauthor, edit, download, rebuild, apply"
         exit 1
