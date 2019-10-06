@@ -204,6 +204,14 @@ if [ $# -gt 0 ]; then
         exit 1
      ;;
 
+     "deletebootstrap")
+        if [ -f "getpatch" ]; then
+            echo "Removing patch bootstrap!"
+            rm "getpatch"
+        fi
+        exit 1
+      ;;
+
     *)
         echo "Invalid argument! Please enter one of the following arguments: reauthor, edit, download, rebuild, apply"
         exit 1

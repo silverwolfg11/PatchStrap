@@ -39,3 +39,5 @@ if [ ! -z "$repoBranch" ]; then
     sed -i '5d' "patch"
     sed -i "5i branchName=\"$repoBranch\"" "patch"
 fi
+
+./patch deletebootstrap
