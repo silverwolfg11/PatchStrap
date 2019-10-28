@@ -142,8 +142,8 @@ if [ $# -gt 0 ]; then
 
     "edit" | "e" )
         if [  $# -gt 1 ] && [ $2 == 'continue' ]; then
-            if [ ! -f "patchedit.txt" ]; then
-                echo "Not editing a patch right now! Or patch edit file was removed!"
+            if  (! test -d "$repofolder/.git/rebase-merge" && ! test -d "$repofolder/.git/rebase-apply") ; then
+                echo "No Rebase in progress!"
                 exit 1
             fi
 
@@ -156,8 +156,8 @@ if [ $# -gt 0 ]; then
             exit 1
         fi
 
-        if [ -f "patchedit.txt" ]; then
-            echo "You are already editting a patch! Do ./patch edit continue"
+        if  (test -d "$repofolder/.git/rebase-merge" || test -d "$repofolder/.git/rebase-apply") ; then
+            echo "You are already editing a patch!"
             exit 1
         fi
 
