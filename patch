@@ -23,6 +23,15 @@ function reClone {
     cloneProj
 }
 
+function reAuthor {
+    for file in "$currentdir"/Patches/*
+    do
+        sed -i '2d' "$file"
+        sed -i "2i From: $patchAuthor" "$file"
+    done
+    echo "Patches have been re-authored!"
+}
+
 if [ $# -gt 0 ]; then
     case $1 in
     "download" | "d" )
@@ -52,6 +61,8 @@ if [ $# -gt 0 ]; then
           num=$((num+1))
         done < "$input"
         rm -f "$currentdir/commits.txt"
+        cd $currentdir
+        reAuthor
     ;;
 
     "apply" | "a")
@@ -131,13 +142,8 @@ if [ $# -gt 0 ]; then
     ;;
 
     "reauthor" | "ra" )
-            for file in "$currentdir"/Patches/*
-            do
-                sed -i '2d' "$file"
-                sed -i "2i From: $patchAuthor" "$file"
-            done
-            echo "Patches have been re-authored!"
-            exit 1
+        reAuthor
+        exit 1
     ;;
 
     "edit" | "e" )
