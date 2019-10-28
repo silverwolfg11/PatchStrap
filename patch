@@ -61,7 +61,7 @@ if [ $# -gt 0 ]; then
           num=$((num+1))
         done < "$input"
         rm -f "$currentdir/commits.txt"
-        cd $currentdir
+        cd -
         reAuthor
     ;;
 
@@ -195,6 +195,11 @@ if [ $# -gt 0 ]; then
         git commit -m "$patchmessage"
         exit 1
 
+    ;;
+
+    "build" | "b")
+        cd $repofolder
+        mvn clean package
     ;;
 
     "update" | "u")
