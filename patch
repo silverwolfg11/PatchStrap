@@ -77,7 +77,7 @@ if [ $# -gt 0 ]; then
         echo "Resetting head by $lines commits"
         git reset --hard HEAD~$lines
         rm -f "$currentdir/commits.txt"
-        git am "$currentdir"/Patches/*.patch
+        git am --ignore-whitespace "$currentdir"/Patches/*.patch
         exit 1
     ;;
 
@@ -133,7 +133,7 @@ if [ $# -gt 0 ]; then
         echo "Re-downloading repo..."
         reClone
         echo "Applying patches..."
-        git am "$currentdir"/Patches/*.patch
+        git am --ignore-whitespace "$currentdir"/Patches/*.patch
         exit 1
     ;;
 
