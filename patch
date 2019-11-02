@@ -121,12 +121,10 @@ if [ $# -gt 0 ]; then
                 echo "Applying patch..."
                 cd "$currentdir"
                 cd $repofolder
-                git am "$file"
+                git am --ignore-whitespace "$file"
                 break
             fi
         done
-
-        echo "Ree"
     ;;
 
     "fullapply" | "fa")
