@@ -6,6 +6,7 @@ repoLink=""
 repoFolder=""
 repoBranch=""
 mergeTool=""
+patchAuthor=""
 
 if [ $# -gt 1 ]; then
 
@@ -27,6 +28,10 @@ if [ $# -gt 1 ]; then
         ;;
         -mt=*|--merge-tool=*)
         mergeTool="${i#*=}"
+        shift # past argument with no value
+        ;;
+        -pa=*|--patch-author=*)
+        patchAuthor="${i#*=}"
         shift # past argument with no value
         ;;
         *)
@@ -59,6 +64,11 @@ sed -i "6i repofolder=\"$repoFolder\"" "patch"
 if [ ! -z "$repoBranch" ]; then
     sed -i '5d' "patch"
     sed -i "5i branchName=\"$repoBranch\"" "patch"
+fi
+
+if [ ! -z "$patchAuthor" ]; then
+    sed -i '7d' "patch"
+    sed -i "7i patchAuthor=\"$patchAuthor\"" "patch"
 fi
 
 if [ ! -z "$mergeTool" ]; then
