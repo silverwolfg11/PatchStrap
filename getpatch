@@ -5,13 +5,18 @@ patchURL=https://raw.githubusercontent.com/silverwolfg11/PatchStrap/master/patch
 repoLink=""
 repoFolder=""
 repoBranch=""
+mergeTool=""
 
 if [ $# -gt 1 ]; then
     repoLink=$1
     repoFolder=$2
 
-    if [ $# -eq 3 ]; then
+    if [ $# -gt 2 ]; then
         repoBranch=$3
+    fi
+
+    if [ $# -gt 3 ]; then
+        mergeTool=$4
     fi
 else
     read -p "Type the repo link: " repoLink
@@ -38,6 +43,11 @@ sed -i "6i repofolder=\"$repoFolder\"" "patch"
 if [ ! -z "$repoBranch" ]; then
     sed -i '5d' "patch"
     sed -i "5i branchName=\"$repoBranch\"" "patch"
+fi
+
+if [ ! -z "$mergeTool" ]; then
+    sed -i '8d' "patch"
+    sed -i "8i mergeTool=\"$mergeTool\"" "patch"
 fi
 
 ./patch deletebootstrap
