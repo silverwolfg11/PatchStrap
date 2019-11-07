@@ -33,6 +33,7 @@ if [ $# -gt 1 ]; then
         -pa=*|--patch-author=*)
         patchAuthor="${i#*=}"
         shift # past argument with no value
+        patchAuthor="$patchAuthor ${i#*=}"
         ;;
         *)
               # unknown option

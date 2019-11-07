@@ -20,7 +20,7 @@ Next, for the repo folder, this is simply the folder where you want the repo to 
 for `repoFolder`, so it ends up looking like `repoFolder="GitProjFolder"`.
 
 ## Using the Patch Script
-First, you want to clone the repo. To do this just execute `./patch download`. And it will download the folder.
+First, you want to clone the repo. To do this just execute `./patch download` and it will download the folder.
 
 Make your changes within your designated git project folder. Remember these are commit patches, so make patches for every related
 change. Once you're ready to make a patch for your changes, just run `./patch gen [Patchname]`. Make patch name whatever you want,
