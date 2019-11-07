@@ -25,12 +25,55 @@ function reClone {
 }
 
 function reAuthor {
+    if [! -z "$patchAuthor" ]; then
+
+        for file in "$currentdir"/Patches/*
+        do
+            sed -i '2d' "$file"
+            sed -i "2i From: $patchAuthor" "$file"
+        done
+        echo "Patches have been re-authored!"
+    fi
+}
+
+function getPatchFromNumb {
+    patchNumber=$1
+    patchNumber=$((patchNumber + 0))
+
+    filesLength=$(ls Patches/ -1 | wc -l)
+
+    if [ $filesLength == '0' ]; then
+        echo "No patches to test!"
+        exit 1
+    fi
+
+    if [ $filesLength -lt $patchNumber ]; then
+        echo "Patch number too large!"
+        exit 1
+    fi
+
+    patchNumber=$2
+    patchLength=${#patchNumber}
+
+    while [ $patchLength -lt 4 ];
+    do
+        patchNumber="0${patchNumber}"
+        patchLength=${#patchNumber}
+    done
+
+
     for file in "$currentdir"/Patches/*
     do
-        sed -i '2d' "$file"
-        sed -i "2i From: $patchAuthor" "$file"
+        basename=$(basename "$file")
+        tempFile=${basename:0:4}
+
+        if [ $tempFile == $patchNumber ]; then
+            echo "Applying patch..."
+            cd "$currentdir"
+            cd $repofolder
+            return $file
+        fi
     done
-    echo "Patches have been re-authored!"
 }
 
 if [ $# -gt 0 ]; then
@@ -88,44 +131,19 @@ if [ $# -gt 0 ]; then
             exit 1
         fi
 
-        patchNumber=$2
-        patchNumber=$((patchNumber + 0))
+        file='getPatchFromNumb $2'
+        git am --ignore-whitespace "$file"
+    ;;
 
-        filesLength=$(ls Patches/ -1 | wc -l)
-
-        if [ $filesLength == '0' ]; then
-            echo "No patches to test!"
+    "unapply" | "ua")
+        if [ $# -lt 2 ]; then
+            echo "Please attach a patch number!"
             exit 1
         fi
 
-        if [ $filesLength -lt $patchNumber ]; then
-            echo "Patch number too large!"
-            exit 1
-        fi
-
-        patchNumber=$2
-        patchLength=${#patchNumber}
-
-        while [ $patchLength -lt 4 ];
-        do
-            patchNumber="0${patchNumber}"
-            patchLength=${#patchNumber}
-        done
-
-
-        for file in "$currentdir"/Patches/*
-        do
-            basename=$(basename "$file")
-            tempFile=${basename:0:4}
-
-            if [ $tempFile == $patchNumber ]; then
-                echo "Applying patch..."
-                cd "$currentdir"
-                cd $repofolder
-                git am --ignore-whitespace "$file"
-                break
-            fi
-        done
+        file='getPatchFromNumb $2'
+        git apply -R "$file"
+        echo "Reverted patch!"
     ;;
 
     "fullapply" | "fa")
