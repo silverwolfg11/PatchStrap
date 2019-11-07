@@ -8,16 +8,32 @@ repoBranch=""
 mergeTool=""
 
 if [ $# -gt 1 ]; then
-    repoLink=$1
-    repoFolder=$2
 
-    if [ $# -gt 2 ]; then
-        repoBranch=$3
-    fi
-
-    if [ $# -gt 3 ]; then
-        mergeTool=$4
-    fi
+    # Argument Parsing
+    for i in "$@"
+    do
+    case $i in
+        -rl=*|--repo-link=*)
+        repoLink="${i#*=}"
+        shift # past argument=value
+        ;;
+        -rf=*|--repo-folder=*)
+        repoFolder="${i#*=}"
+        shift # past argument=value
+        ;;
+        -bn=*|--branch-name=*)
+        repoBranch="${i#*=}"
+        shift # past argument=value
+        ;;
+        -mt=*|--merge-tool=*)
+        mergeTool="${i#*=}"
+        shift # past argument with no value
+        ;;
+        *)
+              # unknown option
+        ;;
+    esac
+    done
 else
     read -p "Type the repo link: " repoLink
     read -p "Type the repo folder: " repoFolder

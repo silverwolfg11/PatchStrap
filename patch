@@ -222,7 +222,7 @@ if [ $# -gt 0 ]; then
         echo "Downloading latest patch bootstrap!"
         curl "https://raw.githubusercontent.com/silverwolfg11/PatchStrap/master/getpatch" >> getpatch
         echo "Running patchstrap!"
-        ./getpatch $repolink $repofolder $branchName $mergetool
+        ./getpatch -rl=$repolink -rf=$repofolder -bn=$branchName -mt=$mergetool
         exit 1
      ;;
 
