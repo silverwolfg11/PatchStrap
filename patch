@@ -175,7 +175,6 @@ if [ $# -gt 0 ]; then
             git commit --amend
             git rebase --continue
             cd -
-            rm "patchedit.txt"
             exit 1
         fi
 
@@ -192,7 +191,6 @@ if [ $# -gt 0 ]; then
         fi
 
         cd $repofolder
-        echo "Editing patch" > "$currentdir"/patchedit.txt
         git rebase -i HEAD~$filesLength
     ;;
 

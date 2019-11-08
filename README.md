@@ -57,7 +57,7 @@ easy to resolve these changes, but the initial set-up is a little complex. The p
 conflicts, so you should have one set up. If you don't have a mergetool set up, the patch script will default to using the
 regular git merge (which is pretty ugly)>
 
-If you have a merge tool, set up, make sure to specify it so the patch script knows to use it. You can specify the merge
+If you have a merge tool set up, make sure to specify it so the patch script knows to use it. You can specify the merge
 tool by setting the `mergetool` variable inside of the patch script to the name of your merge tool. I set up a merge tool
 that uses intellij's merging window (because I like the look and ease of it), but it's personal preference.
 
@@ -73,7 +73,7 @@ the merge it will automatically continue to apply further patches.
 ## Patch Authoring
 Patch script allows you to change the author of your patches. This is mainly useful if you don't want to use whatever git email
 you have set as the author of your patches. Simply change the `patchAuthor` variable to your desired name followed by your email
-enclosed between < and >. For example, `patchAuthor="Silverwolfg11 \<silverwolfg11@gmail.com>". It's important to note that
+enclosed between < and >. For example, `patchAuthor="Silverwolfg11 <silverwolfg11@gmail.com>`. It's important to note that
 if you have a patch author set, all patches will be re-authored when they are re-built. 
 
 ## Updating the patch script
