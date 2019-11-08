@@ -35,8 +35,8 @@ That's it, that's the gist of using patches!
 
 ## Editing Patches
 Make sure all your patches have been re-built. Editing patches is a little tricky. First, run `./patch edit`. You will see a
-list of your patches with "pick" in-front of them. Replace "pick" with "edit" and save the file (escape, then click into the terminal
-and then type `:wq` if you're unfamiliar with a bash terminal). Only edit one patch at a time.
+list of your patches with "pick" in-front of them. Replace "pick" with "edit" and save the file (if you're unfamiliar with a bash terminal
+ \- escape, then click into the terminal and then type `:wq`). Only edit one patch at a time.
 
 Saving your edits is a little complex. There is no good easy way to do this, so you're going to have to do it manually.
 Go into your project folder (`cd projfolder`), then add your changes to git (`git add .`).
@@ -44,7 +44,7 @@ Go into your project folder (`cd projfolder`), then add your changes to git (`gi
 The next command is very important. Run `git commit --amend` (**it's very important that you don't forget the --amend**). In this
 stage you can change the commit message. Save the file (`:wq`). Now, for the final step, you are going to have to finish rebasing,
 which you can do by running `git rebase --continue`. And voila you have edited a patch! **Make sure to rebuild your patches by
-going back into your main proj directory (where your patches folder is) and running `./patch rb`. 
+going back into your main proj directory (where your patches folder is) and running `./patch rb`**. 
 
 ## Getting upstream changes
 Sometimes the git repo you have cloned has been worked on, and there are changes. Getting the changes and applying the patches is
@@ -52,10 +52,12 @@ a really easy process. All you have to do is run `./patch fa` which will downloa
 your patches to it.
 
 ## Resolving Patch Conflicts
-Sometimes after you get upstream changes, your patches will fail to apply due to conflicts. Now, the patch script makes it
-easy to resolve these changes, but the initial set-up is a little complex. The patch script uses git's mergetool to resolve
+However, after you get upstream changes, your patches may fail to apply due to conflicts. Now, the patch script makes it
+easy to resolve these changes, but the initial set-up is a little complex.
+ 
+The patch script uses git's mergetool to resolve
 conflicts, so you should have one set up. If you don't have a mergetool set up, the patch script will default to using the
-regular git merge (which is pretty ugly)>
+regular git merge (which is pretty ugly).
 
 If you have a merge tool set up, make sure to specify it so the patch script knows to use it. You can specify the merge
 tool by setting the `mergetool` variable inside of the patch script to the name of your merge tool. I set up a merge tool
@@ -73,7 +75,7 @@ the merge it will automatically continue to apply further patches.
 ## Patch Authoring
 Patch script allows you to change the author of your patches. This is mainly useful if you don't want to use whatever git email
 you have set as the author of your patches. Simply change the `patchAuthor` variable to your desired name followed by your email
-enclosed between < and >. For example, `patchAuthor="Silverwolfg11 <silverwolfg11@gmail.com>`. It's important to note that
+enclosed between < and >. For example, `patchAuthor="Silverwolfg11 <silverwolfg11@gmail.com>"`. It's important to note that
 if you have a patch author set, all patches will be re-authored when they are re-built. 
 
 ## Updating the patch script
