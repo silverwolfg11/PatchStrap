@@ -56,8 +56,6 @@ else
     read -p "Type the repo branch: " repoBranch
 fi
 
-exit 1
-
 if [ -f "patch" ]; then
     echo "Removing current patch file!"
     rm "patch"
