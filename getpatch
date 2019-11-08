@@ -15,26 +15,36 @@ if [ $# -gt 1 ]; then
     do
     case $i in
         -rl=*|--repo-link=*)
-        repoLink="${i#*=}"
-        shift # past argument=value
+            repoLink="${i#*=}"
+            shift # past argument=value
         ;;
+
         -rf=*|--repo-folder=*)
-        repoFolder="${i#*=}"
-        shift # past argument=value
+            repoFolder="${i#*=}"
+            shift # past argument=value
         ;;
+
         -bn=*|--branch-name=*)
-        repoBranch="${i#*=}"
-        shift # past argument=value
+            repoBranch="${i#*=}"
+            shift # past argument=value
         ;;
+
         -mt=*|--merge-tool=*)
-        mergeTool="${i#*=}"
-        shift # past argument with no value
+            mergeTool="${i#*=}"
+            shift # past argument with no value
         ;;
+
         -pa=*|--patch-author=*)
-        patchAuthor="${i#*=}"
-        shift # past argument with no value
-        patchAuthor="$patchAuthor ${i#*=}"
+            patchAuthor="${i#*=}"
+
+            # Add a space for the patch author
+            if [ ! -z "$patchAuthor" ]; then
+                patchAuthor="${patchAuthor/</ <}"
+            fi
+
+            shift # past argument with no value
         ;;
+
         *)
               # unknown option
         ;;
@@ -45,6 +55,8 @@ else
     read -p "Type the repo folder: " repoFolder
     read -p "Type the repo branch: " repoBranch
 fi
+
+exit 1
 
 if [ -f "patch" ]; then
     echo "Removing current patch file!"
@@ -62,14 +74,12 @@ sed -i "4i repolink=\"$repoLink\"" "patch"
 sed -i '6d' "patch"
 sed -i "6i repofolder=\"$repoFolder\"" "patch"
 
+sed -i '7d' "patch"
+sed -i "7i patchAuthor=\"$patchAuthor\"" "patch"
+
 if [ ! -z "$repoBranch" ]; then
     sed -i '5d' "patch"
     sed -i "5i branchName=\"$repoBranch\"" "patch"
-fi
-
-if [ ! -z "$patchAuthor" ]; then
-    sed -i '7d' "patch"
-    sed -i "7i patchAuthor=\"$patchAuthor\"" "patch"
 fi
 
 if [ ! -z "$mergeTool" ]; then
