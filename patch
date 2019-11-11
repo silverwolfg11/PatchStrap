@@ -25,7 +25,7 @@ function reClone {
 }
 
 function reAuthor {
-    if [! -z "$patchAuthor" ]; then
+    if [ ! -z "$patchAuthor" ]; then
 
         for file in "$currentdir"/Patches/*
         do
