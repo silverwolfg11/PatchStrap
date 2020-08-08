@@ -48,8 +48,8 @@ going back into your main proj directory (where your patches folder is) and runn
 
 ## Getting upstream changes
 Sometimes the git repo you have cloned has been worked on, and there are changes. Getting the changes and applying the patches is
-a really easy process. All you have to do is run `./patch fa` which will download the project from the git repo again and apply
-your patches to it.
+a really easy process. All you have to do is run `./patch pull` which will reset the project to the last upstream commit, and then
+it will pull the latest commits from the project. Then run `/patch apply` to re-apply the patches to the project.
 
 ## Resolving Patch Conflicts
 However, after you get upstream changes, your patches may fail to apply due to conflicts. Now, the patch script makes it
@@ -88,7 +88,7 @@ indicate that.
 Well, let's say you have some patches that you rather not apply. There are two ways to go about this. You can either apply only the ones
 you want, or you can unapply the ones you don't want.
 
-For the first method, run `./patch clean` which will get the latest project from the repo. Then to apply certain patches,
+For the first method, run `./patch reset` which will reset the project to the stored upstream commit. Then to apply certain patches,
 run `./patch t [patch number]`. Patch number can be like 2, or 002. Representative of the patch number you want to apply.
 
 For the second method, run `./patch fa` to apply your changes with any changes from upstream. Then to unapply certain patches, just

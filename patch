@@ -6,22 +6,17 @@ branchName=""
 repofolder=""
 patchAuthor="Silverwolfg11 <silverwolfg11@gmail.com>"
 mergetool=""
+# Text file that stores the latest commit of the upstream project
+upstreamFile="$currentdir/current-upstream.txt"
 
 function cloneProj {
+    echo "Cloning git repo into specified directory..."
     if [ -z "$branchName" ]; then
         git clone $repolink .
     else
         git clone $repolink --branch $branchName --single-branch .
     fi
-}
-
-function reClone {
-    if [ -d $repofolder ]; then
-        rm -rf $repofolder
-    fi
-    mkdir $repofolder
-    cd $repofolder
-    cloneProj
+    echo "Git project cloned succesfully!"
 }
 
 function reAuthor {
@@ -34,6 +29,28 @@ function reAuthor {
         done
         echo "Patches have been re-authored!"
     fi
+}
+
+# Checks whether the repo folder exists, and exits if it does not
+function validateRepoFolder {
+    if [ ! -d "$repofolder" ]; then
+        echo "Repo folder doesn't exist!"
+        exit 1
+    fi
+}
+
+function resetToUpstream {
+    # Check if upstream file exists
+    if [ ! -f "$upstreamFile" ]; then
+      echo "Could not find last upstream commit!"
+      exit 1
+    fi
+    # Read latest commit to latest commit variable
+    read -r recentCommit < "$upstreamFile"
+    cd "$currentdir/$repofolder"
+    # Reset to latest commit
+    echo "Resetting head to $recentCommit"
+    git reset --hard $recentCommit
 }
 
 function getPatchFromNumb {
@@ -79,24 +96,37 @@ function getPatchFromNumb {
 if [ $# -gt 0 ]; then
     case $1 in
     "download" | "d" )
+        # Create repo folder if it doesn't exists
         if [ ! -d $repofolder ]; then
             mkdir $repofolder
         fi
+        # Clone project into repo folder
         cd $repofolder
         if [ ! -d .git ]; then
             cloneProj
+            # Check if the upstream file exists
+            if [ ! -f "$upstreamFile" ]; then
+                # If it doesn't store latest commit to upstream file
+                git rev-parse HEAD > "$upstreamFile";
+            else
+                # If it does, then reset to recorded branch
+                echo "Resetting git repo to last stored commit..."
+                resetToUpstream
+            fi
         fi
-        ;;
+    ;;
 
     "rebuild" | "rb" )
-        if [ ! -d $repofolder ]; then
-            echo "Repo folder doesn't exist!"
-            exit 1
-        fi
+        validateRepoFolder
         cd $repofolder;
+        echo "Determining # patches that are not applied upstream..."
+        # Git Cherry allows us to view the patches that haven't been applied to upstream
         git cherry > "$currentdir/commits.txt"
+        # Num will serve as our patch counter to increment patch numbers
         num=1
+        # Read the commits.txt file
         input="$currentdir/commits.txt"
+        echo "Rebuilding patches..."
         while IFS= read -r line
         do
           patchhash="${line:2}"
@@ -105,23 +135,18 @@ if [ $# -gt 0 ]; then
           num=$((num+1))
         done < "$input"
         rm -f "$currentdir/commits.txt"
+        echo "Patches rebuilt succesfully!"
         cd -
         reAuthor
     ;;
 
     "apply" | "a")
-        if [ ! -d $repofolder ]; then
-            echo "Repo folder doesn't exist!"
-            exit 1
-        fi
+        validateRepoFolder
         cd $repofolder;
-        echo "Determining # of differences..."
-        git cherry > "$currentdir/commits.txt"
-        lines=$(wc -l < "$currentdir/commits.txt")
-        echo "Resetting head by $lines commits"
-        git reset --hard HEAD~$lines
-        rm -f "$currentdir/commits.txt"
+        resetToUpstream
+        echo "Applying patches to project..."
         git am --ignore-whitespace "$currentdir"/Patches/*.patch
+        echo "Patches applied succesfully!"
         exit 1
     ;;
 
@@ -146,16 +171,20 @@ if [ $# -gt 0 ]; then
         echo "Reverted patch!"
     ;;
 
-    "fullapply" | "fa")
-        echo "Re-downloading repo..."
-        reClone
-        echo "Applying patches..."
-        git am --ignore-whitespace "$currentdir"/Patches/*.patch
-        exit 1
+    "pull")
+      validateRepoFolder
+      resetToUpstream
+      cd "$currentdir/$repofolder"
+      git pull
+      echo "Storing latest commit in $upstreamFile ..."
+       # Get the latest upstream commit and store it in a file
+      git rev-parse HEAD > "$upstreamFile"
+      echo "Patches have been un-applied. Make sure to re-apply them!"
     ;;
 
-    "clean" )
-        reClone
+    "reset" )
+        validateRepoFolder
+        resetToUpstream
     ;;
 
     "reauthor" | "ra" )
@@ -213,11 +242,13 @@ if [ $# -gt 0 ]; then
     ;;
 
     "build" | "b")
+        validateRepoFolder
         cd $repofolder
         mvn clean package
     ;;
 
     "resolve" | "res")
+        validateRepoFolder
         cd $repofolder
         git am -3
         if [ -z "$mergetool" ]; then
@@ -252,11 +283,11 @@ if [ $# -gt 0 ]; then
      ;;
 
     *)
-        echo "Invalid argument! Please enter one of the following arguments: reauthor, edit, download, rebuild, apply"
+        echo "Invalid argument! Please enter one of the following arguments: download, pull, apply, rebuild, reset, reauthor, edit, generate"
         exit 1
         ;;
     esac
 
 else
-    echo "Please attach one of the following arguments: reauthor, edit, generate, download, rebuild, apply, or fullapply"
+    echo "Please attach one of the following arguments: download, pull, apply, rebuild, reset, reauthor, edit, generate"
 fi
